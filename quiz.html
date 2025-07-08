@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>QUIZ DE CREACIÓN</title>
+  <style>
+    body {
+      background: #000;
+      color: #FFF;
+      font-family: monospace;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    button.option {
+      display: block;
+      margin: 10px 0;
+      background: #222;
+      color: #FFF;
+      border: 1px solid #444;
+      padding: 12px;
+      width: 100%;
+      max-width: 400px;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 1em;
+    }
+    .reaction {
+      color: #B8B8B8;
+      margin-left: 10px;
+      display: inline-block;
+    }
+    #final-message {
+      font-size: 2em;
+      text-align: center;
+      margin-top: 40px;
+      color: #FFF;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .hidden { display: none; }
+    .chosen { color: #FFF200; font-weight: bold; }
+    .continue-btn {
+      background: #AB0030;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      margin-left: 15px;
+    }
+    #result {
+      margin-top: 40px;
+      font-size: 1.2em;
+      color: #E35285;
+      white-space: pre-line;
+      text-align: center;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+      20%, 40%, 60%, 80% { transform: translateX(3px); }
+    }
+    .shake {
+      animation: shake 0.5s;
+    }
+    .secret-option {
+      color: #E35285;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <h1>QUIZ DE CREACIÓN</h1>
+  <div id="quiz"></div>
+  <div id="final-message" class="hidden"></div>
+  <div id="result"></div>
+
+  <script>
+    const questions = [
+      {
+        text: "ELIGE UN CUERPO",
+        options: ["HUMANO", "ELFO", "ORCO", "ENANO", "GOLIATH", "TIEFLING", "GNOMO", "GOBLIN", "KOBOLD"],
+        reactions: {
+          "HUMANO": "Basico.",
+          "ELFO": " Quieres ser importante?",
+          "ORCO": "Musculo. ",
+          "ENANO": "Siempre mirando al Cielo.",
+          "GOLIATH": "Fascinante.",
+          "TIEFLING": "Maldito.",
+          "GNOMO": "Enserio?",
+          "GOBLIN": "Otro Chiste?",
+          "KOBOLD": "Sin Ideas?",
+        }
+      },
+      {
+        text: "ELIGE SU ROL",
+        options: ["GUERRERO", "BARBARO", "MAGO", "BARDO", "CLERIGO", "DRUIDA", "MONJE", "PALADIN", "LADRÓN", "BRUJO", "HECHICERO", "CAZADOR"],
+        reactions: {
+          "GUERRERO": "Versatil pero aburrido.",
+          "BARBARO": "Fuerte.",
+          "MAGO": "Memoriza Rapido.",
+          "BARDO": "Entretiene y Ridiculiza.",
+          "CLERIGO": "Ignoro tus plegarias.",
+          "DRUIDA": "Mira las flores.",
+          "MONJE": "Mira hacia adelante. O hacia dentro.",
+          "PALADIN": "Solo necesitas creer.",
+          "LADRÓN": "Mientras mas quitas mas te falta.",
+          "BRUJO": "Trato hecho.",
+          "HECHICERO": "Todo lo Necesario esta en ti",
+          "CAZADOR": "Ahora eres la presa."
+        }
+      },
+      {
+        text: "¿QUÉ LE IMPULSA?",
+        options: ["FUERZA", "DESTREZA", "VOLUNTAD", "INTELIGENCIA", "SABIDURÍA", "CARISMA"],
+        reactions: {
+          "FUERZA": "Ignorante.",
+          "DESTREZA": "Ágil.",
+          "VOLUNTAD": "Siquiera tienes alma?",
+          "INTELIGENCIA": "Tambien a mi.",
+          "SABIDURÍA": "Crece.",
+          "CARISMA": "Molesto."
+        }
+      },
+      {
+        text: "¿CUÁL ES SU COMIDA FAVORITA?",
+        options: ["DULCE", "SUAVE", "SANGRE", "SALADO", "DOLOR", "FRÍO"],
+        reactions: {
+          "DOLOR": "Qué fascinante.",
+          "DULCE": "Qué inocente.",
+          "SUAVE": "Qué delicado.",
+          "SANGRE": "Un gusto adquirido.",
+          "SALADO": "Un clásico.",
+          "FRÍO": "Inusual... pero adecuado."
+        }
+      },
+      {
+        text: "¿QUÉ SIENTES POR TU CREACIÓN?",
+        options: ["AMOR", "ESPERANZA", "ASCO", "MIEDO"],
+        reactions: {
+          "AMOR": "Siente el calor.",
+          "ESPERANZA": "Sonrie.",
+          "ASCO": "Ve tu vergüenza.",
+          "MIEDO": "Bien. Deberías."
+        }
+      },
+      {
+        text: "¿CUÁL ES SU COLOR FAVORITO?",
+        options: ["ROJO", "AZUL", "VERDE", "AMARILLO Y ROSA", "BLANCO", "MORADO", "NEGRO"],
+        reactions: {
+          "ROJO": "Predecible, pero poderoso.",
+          "AZUL": "Calmado... por ahora.",
+          "VERDE": "Naturalmente.",
+          "NEGRO": "Observas el vacío y...",
+          "BLANCO": "Hermoso y mortal.",
+          "MORADO": "Neutral. Pero no débil.",
+          "AMARILLO Y ROSA": "Quieres el [[HYPERLINK BLOQUEADO]]"
+        }
+      },
+      {
+        text: "DALE UN REGALO",
+        options: ["BONDAD", "CREATIVIDAD", "AMBICIÓN", "INTEGRIDAD", "VOZ"],
+        secretOption: "ALMA",
+        reactions: {
+          "BONDAD": "Un regalo que pocos aprecian.",
+          "CREATIVIDAD": "Peligroso, pero valioso.",
+          "AMBICIÓN": "Puede construir o destruir.",
+          "INTEGRIDAD": "Raro en estos tiempos.",
+          "VOZ": "Ahora podrá ser escuchado.",
+          "ALMA": "[[ObjetoConFormaDeCorazon]]"
+        }
+      },
+      {
+        text: "¿HAS RESPONDIDO CON HONESTIDAD?",
+        options: ["SÍ", "NO"],
+        reactions: {
+          "SÍ": "Te creo. Por ahora.",
+          "NO": "Lo se."
+        }
+      },
+      {
+        text: "¿ACEPTAS LA POSIBILIDAD DE DOLOR Y MUERTE?",
+        options: ["SÍ", "NO"],
+        reactions: {
+          "SÍ": "Entonces continúa.",
+          "NO": "Y aún así... sigues."
+        }
+      },
+      {
+        text: "¿QUÉ ERES?",
+        options: ["HÉROE", "VILLANO", "NADIE", "DIOS", "RECIPIENTE", "ERROR", "MONSTRUO", "TONTO", "SUPERVIVIENTE", "VERDAD"],
+        reactions: {}
+      }
+    ];
+
+    let current = 0;
+    let answers = [];
+    let showSecretOption = false;
+
+    function showQuestion() {
+      const quiz = document.getElementById("quiz");
+      const finalMessage = document.getElementById("final-message");
+      finalMessage.classList.add("hidden");
+
+      quiz.innerHTML = "";
+      const q = questions[current];
+
+      // Verificar si se seleccionó "AMARILLO Y ROSA" en la pregunta de color (índice 5)
+      if (current === 6 && answers[5] === "AMARILLO Y ROSA") {
+        showSecretOption = true;
+      }
+
+      const div = document.createElement("div");
+      div.className = "question";
+      const title = document.createElement("h3");
+      title.textContent = q.text;
+      div.appendChild(title);
+
+      // Mostrar opciones normales
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.className = "option";
+        btn.onclick = () => selectOption(btn, opt, q);
+        div.appendChild(btn);
+      });
+
+      // Mostrar opción secreta si aplica
+      if (current === 6 && showSecretOption && q.secretOption) {
+        const btn = document.createElement("button");
+        btn.textContent = q.secretOption;
+        btn.className = "option secret-option";
+        btn.onclick = () => selectOption(btn, q.secretOption, q);
+        div.appendChild(btn);
+      }
+
+      quiz.appendChild(div);
+    }
+
+    function selectOption(btn, opt, q) {
+      answers.push(opt);
+
+      const reactionText = q.reactions[opt] || "";
+      btn.innerHTML = `<span class='chosen'>${opt}</span> <span class='reaction'>${reactionText}</span> <button class='continue-btn'>Continuar</button>`;
+
+      btn.disabled = true;
+      document.querySelectorAll("button.option").forEach(b => {
+        if (b !== btn) b.style.display = "none";
+      });
+
+      btn.querySelector(".continue-btn").onclick = (e) => {
+        e.stopPropagation();
+        current++;
+        if (current < questions.length) {
+          showQuestion();
+        } else {
+          document.getElementById("quiz").innerHTML = "";
+          typeWriter();
+        }
+      };
+
+      if (current === questions.length - 1) {
+        btn.querySelector(".continue-btn").style.display = "none";
+        setTimeout(() => {
+          document.getElementById("quiz").innerHTML = "";
+          typeWriter();
+        }, 1000);
+      }
+    }
+
+    function typeWriter() {
+      const finalMessage = document.getElementById("final-message");
+      const text = "NADIE ELIGE QUIÉN ES";
+      let i = 0;
+      
+      finalMessage.classList.remove("hidden");
+      
+      function type() {
+        if (i < text.length) {
+          finalMessage.innerHTML += text.charAt(i);
+          i++;
+          
+          if (Math.random() > 0.7) {
+            finalMessage.classList.add("shake");
+            setTimeout(() => {
+              finalMessage.classList.remove("shake");
+            }, 500);
+          }
+          
+          setTimeout(type, Math.random() * 150 + 50);
+        } else {
+          setTimeout(() => showResult(), 1000);
+        }
+      }
+      
+      type();
+    }
+
+    function showResult() {
+      const result = document.getElementById("result");
+      let message = answers.map((a, i) => `${questions[i].text} → ${a}`).join("\n");
+      result.innerHTML = message;
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
